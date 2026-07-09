@@ -13,8 +13,8 @@
         .setting-panel-elderly { font-size: 1.2rem !important; }
     </style>
 </head>
-<!-- 預設背景圖設為 bg-sunny.jpg -->
-<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.jpg');">
+<!-- 預設背景圖設為 bg-sunny.png -->
+<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.png');">
 
     <!-- 遊戲大容器：響應式設計 (md:flex-row 手機變直向) -->
     <div class="bg-white/40 backdrop-blur-sm p-6 md:p-8 rounded-[40px] shadow-2xl border border-white/40 max-w-7xl w-full flex flex-col md:flex-row gap-6 md:gap-10 items-center">
@@ -156,17 +156,17 @@
 
             // 動態換圖邏輯：背景動畫 + 主播表情
             if (resultStatus === 'DAIKICHI') {
-                gameBg.style.backgroundImage = "url('bg-rainbow.jpg')"; // 大吉換彩虹背景 (bg-rainbow.jpg)
+                gameBg.style.backgroundImage = "url('bg-rainbow.png')"; // 大吉換彩虹背景 (bg-rainbow.png)
                 anchorImg.src = "anchor-2.png"; // 主播興奮表情 (anchor-2.png)
                 speakHKCantoneseAndGenerateReport("【大吉】今日心情極佳，啱晒出街同朋友野餐！");
             } else if (resultStatus === 'CHALLENGE') {
-                gameBg.style.backgroundImage = "url('bg-lightning.jpg')"; // 挑戰換雷電背景 (bg-lightning.jpg)
+                gameBg.style.backgroundImage = "url('bg-lightning.png')"; // 挑戰換雷電背景 (bg-lightning.png)
                 // 陰天或挑戰主播表情隨機 (anchor-3.png 至 4.png)
                 const challengeAnchorIndex = negativeCount >= 4 ? 4 : 3;
                 anchorImg.src = `anchor-${challengeAnchorIndex}.png`; 
                 speakHKCantoneseAndGenerateReport("【挑戰】雷電交加，出門要小心，留喺屋企聽下音樂啦！");
             } else {
-                gameBg.style.backgroundImage = "url('bg-cloudy.jpg')"; // 混合換陰天背景 (bg-cloudy.jpg)
+                gameBg.style.backgroundImage = "url('bg-cloudy.png')"; // 混合換陰天背景 (bg-cloudy.png)
                 // 混合模式主播表情隨機 (anchor-1.png 至 6.png)
                 const mixedAnchorIndex = counts[6] >= 1 ? 2 : (positiveCount >= 2 ? 1 : 3);
                 anchorImg.src = `anchor-${mixedAnchorIndex}.png`;

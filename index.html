@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧩 迷你天氣主播 — 完成版</title>
+    <!-- 引入 Tailwind CSS (無代碼設計師的最佳選擇) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 簡單的字體加大和圓角微調 */
+        body { font-size: 1.1rem; }
+        .elder-btn { font-size: 1.3rem !important; }
+        .setting-panel-elderly { font-size: 1.2rem !important; }
+    </style>
+</head>
+<!-- 預設背景圖設為 bg-sunny.jpg -->
+<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.jpg');">
+
+    <!-- 遊戲大容器：響應式設計 (md:flex-row 手機變直向) -->
+    <div class="bg-white/40 backdrop-blur-sm p-6 md:p-8 rounded-[40px] shadow-2xl border border-white/40 max-w-7xl w-full flex flex-col md:flex-row gap-6 md:gap-10 items-center">
+        
+        <!-- 左邊：主播角色區域 (響應式大小) -->
+        <div class="w-full md:w-1/2 flex justify-center items-end h-[400px] md:h-[550px] relative">
+            <!-- 主播圖片，預設顯示 anchor-1.png (微笑) -->
+            <img id="anchor-img" src="anchor-1.png" alt="天氣主播" class="max-h-full object-contain transition-all duration-500 transform translate-y-0">
+        </div>
+
+        <!-- 右邊：控制面板與對話框 (響應式 flex column) -->
+        <div class="w-full md:w-1/2 flex flex-col justify-between gap-6">
+            
+            <!-- 上部分：標題與設定/骰仔區域 -->
+            <div>
+                <div class="flex justify-between items-center mb-6 gap-4">
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 drop-shadow-sm flex items-center gap-2">
+                        🧩 迷你天氣主播
+                    </h1>
+                    <div class="flex items-center gap-3">
+                        <!-- 設定按鈕 icon-settings.png -->
+                        <img id="settings-btn" src="icon-settings.png" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="設定">
+                        <!-- 音量按鈕 icon-volume.png -->
+                        <img id="volume-btn" src="icon-volume.png" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="音量">
+                        <!-- 日曆 badge icon-calendar.png (Day Indicator) -->
+                        <div id="calendar-badge" class="w-12 h-12 md:w-14 md:h-14 bg-cover bg-center flex items-center justify-center" style="background-image: url('icon-calendar.png');">
+                            <span id="day-counter-text" class="text-xl md:text-2xl font-bold text-amber-900 mt-1">Day 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 骰仔顯示區 (Mixed Mode：5 粒骰仔，骰子 1-6 號各一) -->
+                <p class="text-xs md:text-sm text-slate-600 font-bold mb-3 md:mb-4">🎲 擲骰仔結果 (Mixed Mode)：</p>
+                <div class="grid grid-cols-5 gap-3 mb-8 md:mb-10">
+                    <!-- 預設 5 粒骰仔模板為 dice-1.png -->
+                    <img id="dice-1" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 1">
+                    <img id="dice-2" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 2">
+                    <img id="dice-3" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 3">
+                    <img id="dice-4" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 4">
+                    <img id="dice-5" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 5">
+                </div>
+            </div>
+
+            <!-- 中部分：木製對話框 (用你準備嘅 textbox.png 做背景) -->
+            <div id="text-box-container" class="relative w-full h-48 md:h-56 p-6 md:p-8 bg-cover bg-center flex flex-col justify-center text-slate-700 select-none shadow-inner" style="background-image: url('textbox.png');">
+                <div class="absolute top-2 right-2 flex gap-2">
+                    <!-- 播放按鈕 icon-play.png -->
+                    <img id="play-btn" src="icon-play.png" class="w-10 h-10 md:w-12 md:h-12 bg-white/50 p-2 md:p-3 rounded-2xl shadow border border-white/50 cursor-pointer hover:bg-white/80 active:scale-95 hidden" alt="重播">
+                </div>
+                <p id="reporter-voice" class="text-sm md:text-base font-black text-amber-800 mb-1 md:mb-2 drop-shadow-sm">幸運與提示</p>
+                <p id="report-text" class="text-base md:text-xl font-bold leading-relaxed Big5-font">
+                    準備好未？撳骰仔開始報告！今日會有廣東話語音報告喔！
+                </p>
+            </div>
+
+            <!-- 下部分：操作按鈕 (長者加大字體) -->
+            <button id="roll-btn" class="w-full mt-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black py-5 px-6 rounded-[28px] shadow-lg shadow-amber-200 transition-all active:scale-95 text-xl md:text-2xl elder-btn">
+                🎲 擲骰仔生成天氣報告
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 設定面板 (隱藏，Elderly-Friendly) -->
+    <div id="settings-panel" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-6 setting-panel-elderly hidden">
+        <div class="bg-white p-8 md:p-10 rounded-[30px] shadow-2xl max-w-lg w-full text-center border-4 border-amber-600 flex flex-col gap-6">
+            <h2 class="text-3xl font-black text-slate-800 flex items-center justify-center gap-3">
+                <img src="icon-settings.png" class="w-10 h-10" alt="⚙️"> 遊戲設定
+            </h2>
+            <div class="flex flex-col gap-4 text-left">
+                <label class="text-xl font-bold text-slate-700">語音速度 (廣東話)</label>
+                <input id="voice-rate" type="range" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full h-6 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-amber-600">
+                <div class="flex justify-between text-base text-slate-500 font-bold"><span>慢一些</span><span>預設</span><span>快一些</span></div>
+            </div>
+            <button id="close-settings-btn" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-black py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95 text-xl elder-btn">
+                關閉設定
+            </button>
+        </div>
+    </div>
+
+    <!-- 核心遊戲邏輯 (廣東話文字稿範例) -->
+    <script>
+        const rollBtn = document.getElementById('roll-btn');
+        const gameBg = document.getElementById('game-bg');
+        const anchorImg = document.getElementById('anchor-img');
+        const reporterVoice = document.getElementById('reporter-voice');
+        const reportText = document.getElementById('report-text');
+        const playBtn = document.getElementById('play-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        const voiceRateInput = document.getElementById('voice-rate');
+
+        // 儲存當前報告文字，供重播用
+        let currentReport = "";
+
+        // 設定面板控制
+        settingsBtn.addEventListener('click', () => settingsPanel.classList.remove('hidden'));
+        closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.add('hidden'));
+
+        // 重播按鈕控制
+        playBtn.addEventListener('click', () => {
+            if (currentReport) {
+                speakHKCantonese(currentReport);
+            }
+        });
+
+        rollBtn.addEventListener('click', () => {
+            // 每次撳掣，重置骰仔 (用範例範本代表骰仔 1-6 號面)
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`dice-${i}`).src = 'dice-1.png'; // 預設 5 粒骰仔模板為 dice-1.png
+            }
+
+            // 隨機生成 5 日骰仔號碼 (1-6)
+            let randomDiceList = [];
+            for (let i = 0; i < 5; i++) {
+                randomDiceList.push(Math.floor(Math.random() * 6) + 1);
+            }
+
+            // 更新網頁上的 5 粒骰仔圖片 (對應骰子 1-6 號 png)
+            randomDiceList.forEach((dice_num, index) => {
+                document.getElementById(`dice-${index + 1}`).src = `dice-${dice_num}.png`;
+            });
+
+            // 統計骰仔結果，決定天氣狀態
+            const counts = {};
+            randomDiceList.forEach((num) => { counts[num] = (counts[num] || 0) + 1; });
+
+            const positiveCount = (counts[1] || 0) + (counts[4] || 0) + (counts[6] || 0); // 1,4,6 面正能量
+            const negativeCount = (counts[3] || 0) + (counts[5] || 0); // 3,5 面負能量
+
+            let resultStatus = 'MIXED'; // 人生有起有落
+
+            if (negativeCount === 0 && positiveCount >= 3) {
+                resultStatus = 'DAIKICHI'; // 大吉
+            } else if (negativeCount >= 3) {
+                resultStatus = 'CHALLENGE'; // 挑戰
+            }
+
+            // 動態換圖邏輯：背景動畫 + 主播表情
+            if (resultStatus === 'DAIKICHI') {
+                gameBg.style.backgroundImage = "url('bg-rainbow.jpg')"; // 大吉換彩虹背景 (bg-rainbow.jpg)
+                anchorImg.src = "anchor-2.png"; // 主播興奮表情 (anchor-2.png)
+                speakHKCantoneseAndGenerateReport("【大吉】今日心情極佳，啱晒出街同朋友野餐！");
+            } else if (resultStatus === 'CHALLENGE') {
+                gameBg.style.backgroundImage = "url('bg-lightning.jpg')"; // 挑戰換雷電背景 (bg-lightning.jpg)
+                // 陰天或挑戰主播表情隨機 (anchor-3.png 至 4.png)
+                const challengeAnchorIndex = negativeCount >= 4 ? 4 : 3;
+                anchorImg.src = `anchor-${challengeAnchorIndex}.png`; 
+                speakHKCantoneseAndGenerateReport("【挑戰】雷電交加，出門要小心，留喺屋企聽下音樂啦！");
+            } else {
+                gameBg.style.backgroundImage = "url('bg-cloudy.jpg')"; // 混合換陰天背景 (bg-cloudy.jpg)
+                // 混合模式主播表情隨機 (anchor-1.png 至 6.png)
+                const mixedAnchorIndex = counts[6] >= 1 ? 2 : (positiveCount >= 2 ? 1 : 3);
+                anchorImg.src = `anchor-${mixedAnchorIndex}.png`;
+                speakHKCantoneseAndGenerateReport("【有起有落】天公有時不作美，但希望你心情都愉快！");
+            }
+        });
+
+        // 生成對白並廣東話朗讀 (廣東話文字稿及幸運提示)
+        function speakHKCantoneseAndGenerateReport(logicText) {
+            reporterVoice.textContent = `幸運：今日 ${logicText.split('【')[1].split('】')[0]}`;
+            currentReport = logicText;
+            reportText.textContent = logicText.split('】')[1];
+            playBtn.classList.remove('hidden'); // 顯示重播按鈕
+            speakHKCantonese(currentReport);
+        }
+
+        // 廣東話語音合成 (Web Speech API 預設設定，長者最佳)
+        function speakHKCantonese(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // 預設語言為香港廣東話 (zh-HK)
+                utterance.lang = 'zh-HK'; 
+                utterance.rate = voiceRateInput.value; // 從設定面板獲取語音速度
+                utterance.pitch = 1.0; 
+
+                // 嘗試尋找並使用標準廣東話語音源
+                let voices = window.speechSynthesis.getVoices();
+                let cantoneseVoice = voices.find(voice => voice.lang.includes('HK'));
+
+                if (cantoneseVoice) {
+                    utterance.voice = cantoneseVoice;
+                }
+
+                // 開始朗讀
+                window.speechSynthesis.cancel(); // 如果有舊報告，先停止
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // 確保在語音源加載後再尋找廣東話語音 (部份瀏覽器需要時間加載)
+        window.speechSynthesis.onvoiceschanged = function() {
+            // 這個 listener 是為了確保 speakHKCantonese 內能找到 zh-HK 語音源。
+            // 部份瀏覽器需要這一步才能正確初始化 getVoices()。
+        };
+
+        // 初始歡迎報告
+        window.onload = function() {
+            speakHKCantoneseAndGenerateReport("【預備】歡迎嚟到迷你天氣主播遊戲！撳擲骰仔生成天氣報告！");
+        };
+
+    </script>
+</body>
+</html>

@@ -13,16 +13,16 @@
         .setting-panel-elderly { font-size: 1.2rem !important; }
     </style>
 </head>
-<!-- 預設背景圖設為 bg-sunny.png -->
-<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.png');">
+<!-- 預設背景圖設為 bg-sunny.PNG -->
+<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.PNG');">
 
     <!-- 遊戲大容器：響應式設計 (md:flex-row 手機變直向) -->
     <div class="bg-white/40 backdrop-blur-sm p-6 md:p-8 rounded-[40px] shadow-2xl border border-white/40 max-w-7xl w-full flex flex-col md:flex-row gap-6 md:gap-10 items-center">
         
         <!-- 左邊：主播角色區域 (響應式大小) -->
         <div class="w-full md:w-1/2 flex justify-center items-end h-[400px] md:h-[550px] relative">
-            <!-- 主播圖片，預設顯示 anchor-1.png (微笑) -->
-            <img id="anchor-img" src="anchor-1.png" alt="天氣主播" class="max-h-full object-contain transition-all duration-500 transform translate-y-0">
+            <!-- 主播圖片，預設顯示 anchor-1.PNG (微笑) -->
+            <img id="anchor-img" src="anchor-1.PNG" alt="天氣主播" class="max-h-full object-contain transition-all duration-500 transform translate-y-0">
         </div>
 
         <!-- 右邊：控制面板與對話框 (響應式 flex column) -->
@@ -35,12 +35,12 @@
                         🧩 迷你天氣主播
                     </h1>
                     <div class="flex items-center gap-3">
-                        <!-- 設定按鈕 icon-settings.png -->
-                        <img id="settings-btn" src="icon-settings.png" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="設定">
-                        <!-- 音量按鈕 icon-volume.png -->
-                        <img id="volume-btn" src="icon-volume.png" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="音量">
-                        <!-- 日曆 badge icon-calendar.png (Day Indicator) -->
-                        <div id="calendar-badge" class="w-12 h-12 md:w-14 md:h-14 bg-cover bg-center flex items-center justify-center" style="background-image: url('icon-calendar.png');">
+                        <!-- 設定按鈕 icon-settings.PNG -->
+                        <img id="settings-btn" src="icon-settings.PNG" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="設定">
+                        <!-- 音量按鈕 icon-volume.PNG -->
+                        <img id="volume-btn" src="icon-volume.PNG" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="音量">
+                        <!-- 日曆 badge icon-calendar.PNG (Day Indicator) -->
+                        <div id="calendar-badge" class="w-12 h-12 md:w-14 md:h-14 bg-cover bg-center flex items-center justify-center" style="background-image: url('icon-calendar.PNG');">
                             <span id="day-counter-text" class="text-xl md:text-2xl font-bold text-amber-900 mt-1">Day 1</span>
                         </div>
                     </div>
@@ -49,20 +49,20 @@
                 <!-- 骰仔顯示區 (Mixed Mode：5 粒骰仔，骰子 1-6 號各一) -->
                 <p class="text-xs md:text-sm text-slate-600 font-bold mb-3 md:mb-4">🎲 擲骰仔結果 (Mixed Mode)：</p>
                 <div class="grid grid-cols-5 gap-3 mb-8 md:mb-10">
-                    <!-- 預設 5 粒骰仔模板為 dice-1.png -->
-                    <img id="dice-1" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 1">
-                    <img id="dice-2" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 2">
-                    <img id="dice-3" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 3">
-                    <img id="dice-4" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 4">
-                    <img id="dice-5" src="dice-1.png" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 5">
+                    <!-- 預設 5 粒骰仔模板為 dice-1.PNG -->
+                    <img id="dice-1" src="dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 1">
+                    <img id="dice-2" src="dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 2">
+                    <img id="dice-3" src="dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 3">
+                    <img id="dice-4" src="dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 4">
+                    <img id="dice-5" src="dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 5">
                 </div>
             </div>
 
-            <!-- 中部分：木製對話框 (用你準備嘅 textbox.png 做背景) -->
-            <div id="text-box-container" class="relative w-full h-48 md:h-56 p-6 md:p-8 bg-cover bg-center flex flex-col justify-center text-slate-700 select-none shadow-inner" style="background-image: url('textbox.png');">
+            <!-- 中部分：木製對話框 (用你準備嘅 textbox.PNG 做背景) -->
+            <div id="text-box-container" class="relative w-full h-48 md:h-56 p-6 md:p-8 bg-cover bg-center flex flex-col justify-center text-slate-700 select-none shadow-inner" style="background-image: url('textbox.PNG');">
                 <div class="absolute top-2 right-2 flex gap-2">
-                    <!-- 播放按鈕 icon-play.png -->
-                    <img id="play-btn" src="icon-play.png" class="w-10 h-10 md:w-12 md:h-12 bg-white/50 p-2 md:p-3 rounded-2xl shadow border border-white/50 cursor-pointer hover:bg-white/80 active:scale-95 hidden" alt="重播">
+                    <!-- 播放按鈕 icon-play.PNG -->
+                    <img id="play-btn" src="icon-play.PNG" class="w-10 h-10 md:w-12 md:h-12 bg-white/50 p-2 md:p-3 rounded-2xl shadow border border-white/50 cursor-pointer hover:bg-white/80 active:scale-95 hidden" alt="重播">
                 </div>
                 <p id="reporter-voice" class="text-sm md:text-base font-black text-amber-800 mb-1 md:mb-2 drop-shadow-sm">幸運與提示</p>
                 <p id="report-text" class="text-base md:text-xl font-bold leading-relaxed Big5-font">
@@ -82,7 +82,7 @@
     <div id="settings-panel" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-6 setting-panel-elderly hidden">
         <div class="bg-white p-8 md:p-10 rounded-[30px] shadow-2xl max-w-lg w-full text-center border-4 border-amber-600 flex flex-col gap-6">
             <h2 class="text-3xl font-black text-slate-800 flex items-center justify-center gap-3">
-                <img src="icon-settings.png" class="w-10 h-10" alt="⚙️"> 遊戲設定
+                <img src="icon-settings.PNG" class="w-10 h-10" alt="⚙️"> 遊戲設定
             </h2>
             <div class="flex flex-col gap-4 text-left">
                 <label class="text-xl font-bold text-slate-700">語音速度 (廣東話)</label>
@@ -125,7 +125,7 @@
         rollBtn.addEventListener('click', () => {
             // 每次撳掣，重置骰仔 (用範例範本代表骰仔 1-6 號面)
             for (let i = 1; i <= 5; i++) {
-                document.getElementById(`dice-${i}`).src = 'dice-1.png'; // 預設 5 粒骰仔模板為 dice-1.png
+                document.getElementById(`dice-${i}`).src = 'dice-1.PNG'; // 預設 5 粒骰仔模板為 dice-1.PNG
             }
 
             // 隨機生成 5 日骰仔號碼 (1-6)
@@ -136,7 +136,7 @@
 
             // 更新網頁上的 5 粒骰仔圖片 (對應骰子 1-6 號 png)
             randomDiceList.forEach((dice_num, index) => {
-                document.getElementById(`dice-${index + 1}`).src = `dice-${dice_num}.png`;
+                document.getElementById(`dice-${index + 1}`).src = `dice-${dice_num}.PNG`;
             });
 
             // 統計骰仔結果，決定天氣狀態
@@ -156,20 +156,20 @@
 
             // 動態換圖邏輯：背景動畫 + 主播表情
             if (resultStatus === 'DAIKICHI') {
-                gameBg.style.backgroundImage = "url('bg-rainbow.png')"; // 大吉換彩虹背景 (bg-rainbow.png)
-                anchorImg.src = "anchor-2.png"; // 主播興奮表情 (anchor-2.png)
+                gameBg.style.backgroundImage = "url('bg-rainbow.PNG')"; // 大吉換彩虹背景 (bg-rainbow.PNG)
+                anchorImg.src = "anchor-2.PNG"; // 主播興奮表情 (anchor-2.PNG)
                 speakHKCantoneseAndGenerateReport("【大吉】今日心情極佳，啱晒出街同朋友野餐！");
             } else if (resultStatus === 'CHALLENGE') {
-                gameBg.style.backgroundImage = "url('bg-lightning.png')"; // 挑戰換雷電背景 (bg-lightning.png)
-                // 陰天或挑戰主播表情隨機 (anchor-3.png 至 4.png)
+                gameBg.style.backgroundImage = "url('bg-lightning.PNG')"; // 挑戰換雷電背景 (bg-lightning.PNG)
+                // 陰天或挑戰主播表情隨機 (anchor-3.PNG 至 4.PNG)
                 const challengeAnchorIndex = negativeCount >= 4 ? 4 : 3;
-                anchorImg.src = `anchor-${challengeAnchorIndex}.png`; 
+                anchorImg.src = `anchor-${challengeAnchorIndex}.PNG`; 
                 speakHKCantoneseAndGenerateReport("【挑戰】雷電交加，出門要小心，留喺屋企聽下音樂啦！");
             } else {
-                gameBg.style.backgroundImage = "url('bg-cloudy.png')"; // 混合換陰天背景 (bg-cloudy.png)
-                // 混合模式主播表情隨機 (anchor-1.png 至 6.png)
+                gameBg.style.backgroundImage = "url('bg-cloudy.PNG')"; // 混合換陰天背景 (bg-cloudy.PNG)
+                // 混合模式主播表情隨機 (anchor-1.PNG 至 6.PNG)
                 const mixedAnchorIndex = counts[6] >= 1 ? 2 : (positiveCount >= 2 ? 1 : 3);
-                anchorImg.src = `anchor-${mixedAnchorIndex}.png`;
+                anchorImg.src = `anchor-${mixedAnchorIndex}.PNG`;
                 speakHKCantoneseAndGenerateReport("【有起有落】天公有時不作美，但希望你心情都愉快！");
             }
         });

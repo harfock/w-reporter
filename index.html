@@ -2,239 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Maze 3D — Wall Proof</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Maze 3D — Follow Camera Proof</title>
 <style>
-  :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0c1420; }
-  #scene { position: fixed; inset: 0; }
-  #scene canvas { display: block; width: 100%; height: 100%; }
-  .panel { position: fixed; z-index: 2; left: max(12px, env(safe-area-inset-left)); top: max(12px, env(safe-area-inset-top)); width: min(350px, calc(100vw - 24px)); padding: 15px; border: 1px solid #40536a; border-radius: 14px; background: rgba(9, 18, 31, .88); box-shadow: 0 12px 36px #0005; backdrop-filter: blur(8px); }
-  h1 { font-size: 18px; margin: 0 0 5px; }
-  p { margin: 5px 0 12px; color: #bdcce0; font-size: 13px; line-height: 1.45; }
-  .status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 8px 0 12px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #eab308; flex: 0 0 auto; }
-  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  button { min-height: 42px; border: 1px solid #58718d; border-radius: 9px; background: #1a2c42; color: #f2f7ff; font: inherit; font-size: 13px; padding: 8px 10px; cursor: pointer; }
-  button:active { background: #294766; }
-  .hint { font-size: 12px; color: #a9bad0; margin-top: 10px; }
-  #error { color: #fecaca; white-space: pre-wrap; }
-  @media (max-width: 480px) { .panel { padding: 12px; } h1 { font-size: 16px; } p { font-size: 12px; } button { min-height: 40px; } }
+:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1421;touch-action:none}#scene{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:3;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));width:min(330px,calc(100vw - 20px));padding:12px;border:1px solid #42566e;border-radius:13px;background:#0b1624eF;box-shadow:0 10px 32px #0005;backdrop-filter:blur(8px)}h1{font-size:17px;margin:0 0 5px}p{font-size:12px;line-height:1.4;color:#bfd0e3;margin:5px 0 9px}.status{font-size:12px;color:#c6f6d5;margin-bottom:8px}.buttons{display:flex;flex-wrap:wrap;gap:7px}button{font:inherit;color:#f5f8ff;background:#20344a;border:1px solid #5c7895;border-radius:9px;padding:9px 12px;min-height:40px;touch-action:manipulation}.tip{font-size:11px;color:#afc1d6;margin-top:8px}.pad{position:fixed;z-index:2;bottom:max(22px,env(safe-area-inset-bottom));left:18px;display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,50px);gap:5px;user-select:none}.pad button{font-size:20px;font-weight:600;padding:0;background:#14283dcc;border-color:#a7c7e5a8;backdrop-filter:blur(6px)}.pad [data-key="w"]{grid-column:2;grid-row:1}.pad [data-key="a"]{grid-column:1;grid-row:2}.pad [data-key="s"]{grid-column:2;grid-row:2}.pad [data-key="d"]{grid-column:3;grid-row:2}.look{position:fixed;z-index:1;right:0;bottom:0;width:52vw;height:58vh;touch-action:none}.badge{position:fixed;right:12px;top:max(12px,env(safe-area-inset-top));z-index:2;border:1px solid #5b7895;border-radius:999px;padding:7px 10px;background:#0b1624d9;font-size:11px;color:#e6f1ff}@media(min-width:700px){.pad{left:24px;bottom:24px}.look{width:45vw;height:70vh}}#err{color:#fecaca;white-space:pre-wrap}
 </style>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-  }
-}
-</script>
-</head>
-<body>
-<div id="scene" aria-label="Interactive 3D wall test scene"></div>
-<section class="panel">
-  <h1>3D Wall Proof — Clean Restart</h1>
-  <p>This is a real WebGL 3D scene. The wall is a box mesh with front, side and top faces—not a perspective drawing on a 2D canvas.</p>
-  <div class="status"><span class="dot" id="dot"></span><span id="status">Loading Three.js…</span></div>
-  <div class="controls">
-    <button id="reset">Reset camera</button>
-    <button id="wall">Toggle wall</button>
-    <button id="angle">Change camera angle</button>
-    <button id="wire">Toggle wireframe</button>
-  </div>
-  <div class="hint">Drag to orbit · Scroll/pinch to zoom · WASD or arrow keys to move · R to reset</div>
-  <div class="hint" id="error" role="status"></div>
-</section>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}</script>
+</head><body>
+<div id="scene"></div>
+<section class="panel"><h1>3D Follow Camera — Test 1</h1><p>A temporary capsule moves through a small 3D test corridor. This is a separate prototype; it does not alter the saved maze project.</p><div class="status" id="status">Loading 3D scene…</div><div class="buttons"><button id="reset">Reset</button><button id="view">Change view</button><button id="collision">Wall collision: ON</button></div><div class="tip">Desktop: WASD / arrow keys. Drag the right side to look around. Mobile: use the direction pad and drag the open area on the right.</div><div class="tip" id="err"></div></section>
+<div class="badge" id="coords">Position: 0, 0</div>
+<div class="pad" aria-label="Movement controls"><button data-key="w" aria-label="Forward">↑</button><button data-key="a" aria-label="Left">←</button><button data-key="s" aria-label="Backward">↓</button><button data-key="d" aria-label="Right">→</button></div>
+<div class="look" id="look" aria-label="Drag here to rotate view"></div>
 <script type="module">
 import * as THREE from 'three';
-
-const mount = document.querySelector('#scene');
-const statusEl = document.querySelector('#status');
-const dot = document.querySelector('#dot');
-const errorEl = document.querySelector('#error');
-let renderer, scene, camera, wallMesh, wallMaterial, grid, floor, axes;
-let wallVisible = true;
-let wireframe = false;
-let yaw = Math.PI * 0.22;
-let pitch = 0.34;
-let distance = 8.2;
-const target = new THREE.Vector3(0, 1.0, 0);
-const keys = new Set();
-let dragging = false;
-let lastX = 0, lastY = 0;
-
-function setStatus(text, ok = true) {
-  statusEl.textContent = text;
-  dot.style.background = ok ? '#22c55e' : '#ef4444';
-}
-function updateCamera() {
-  pitch = THREE.MathUtils.clamp(pitch, 0.08, 1.35);
-  distance = THREE.MathUtils.clamp(distance, 3.0, 18.0);
-  const horizontal = Math.cos(pitch) * distance;
-  camera.position.set(
-    target.x + Math.sin(yaw) * horizontal,
-    target.y + Math.sin(pitch) * distance,
-    target.z + Math.cos(yaw) * horizontal
-  );
-  camera.lookAt(target);
-}
-function resize() {
-  if (!renderer || !camera) return;
-  const w = Math.max(1, mount.clientWidth);
-  const h = Math.max(1, mount.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-}
-function resetCamera() {
-  yaw = Math.PI * 0.22;
-  pitch = 0.34;
-  distance = 8.2;
-  target.set(0, 1, 0);
-  updateCamera();
-}
-function buildScene() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color('#a8c7dc');
-  scene.fog = new THREE.Fog('#a8c7dc', 18, 42);
-
-  camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 100);
-  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  mount.appendChild(renderer.domElement);
-
-  scene.add(new THREE.HemisphereLight('#eaf6ff', '#536b47', 2.0));
-  const sun = new THREE.DirectionalLight('#fff2d6', 3.0);
-  sun.position.set(-4, 9, 6);
-  scene.add(sun);
-
-  const floorMaterial = new THREE.MeshStandardMaterial({ color: '#88a86b', roughness: 0.94 });
-  floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), floorMaterial);
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.025;
-  floor.receiveShadow = true;
-  scene.add(floor);
-
-  grid = new THREE.GridHelper(30, 30, '#506a4a', '#78926b');
-  grid.position.y = 0.006;
-  scene.add(grid);
-
-  // The core proof: a genuine 3D box mesh with measurable width, height and depth.
-  wallMaterial = new THREE.MeshStandardMaterial({ color: '#e6a34c', roughness: 0.76, metalness: 0.0, wireframe: false });
-  wallMesh = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.2, 0.42), wallMaterial);
-  wallMesh.position.set(0, 1.1, 0);
-  wallMesh.castShadow = true;
-  wallMesh.receiveShadow = true;
-  scene.add(wallMesh);
-
-  // Two perpendicular wall segments prove that corners are actual 3D geometry.
-  const sideWall = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2.2, 3.2), new THREE.MeshStandardMaterial({ color: '#d58c3b', roughness: 0.8 }));
-  sideWall.position.set(-1.9, 1.1, -1.72);
-  sideWall.castShadow = true;
-  sideWall.receiveShadow = true;
-  scene.add(sideWall);
-
-  const farWall = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.7, 0.38), new THREE.MeshStandardMaterial({ color: '#c97c36', roughness: 0.82 }));
-  farWall.position.set(0.5, 0.85, -4.0);
-  farWall.castShadow = true;
-  farWall.receiveShadow = true;
-  scene.add(farWall);
-
-  axes = new THREE.AxesHelper(1.4);
-  axes.position.set(-3.4, 0.02, 1.5);
-  scene.add(axes);
-
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  sun.shadow.camera.left = -9;
-  sun.shadow.camera.right = 9;
-  sun.shadow.camera.top = 9;
-  sun.shadow.camera.bottom = -9;
-  sun.shadow.bias = -0.0003;
-
-  resetCamera();
-  resize();
-  setStatus('3D scene created — wall mesh is present');
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  if (!renderer || !scene || !camera) return;
-  const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-  const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-  const move = new THREE.Vector3();
-  if (keys.has('w') || keys.has('arrowup')) move.add(forward);
-  if (keys.has('s') || keys.has('arrowdown')) move.sub(forward);
-  if (keys.has('d') || keys.has('arrowright')) move.add(right);
-  if (keys.has('a') || keys.has('arrowleft')) move.sub(right);
-  if (move.lengthSq() > 0) {
-    move.normalize().multiplyScalar(0.075);
-    target.add(move);
-    updateCamera();
-  }
-  renderer.render(scene, camera);
-}
-
-try {
-  buildScene();
-  animate();
-} catch (error) {
-  setStatus('3D initialization failed', false);
-  errorEl.textContent = String(error?.stack || error);
-  throw error;
-}
-
-mount.addEventListener('pointerdown', event => {
-  if (event.pointerType === 'mouse' && event.button !== 0) return;
-  dragging = true; lastX = event.clientX; lastY = event.clientY;
-  mount.setPointerCapture?.(event.pointerId);
-});
-mount.addEventListener('pointermove', event => {
-  if (!dragging) return;
-  const dx = event.clientX - lastX;
-  const dy = event.clientY - lastY;
-  lastX = event.clientX; lastY = event.clientY;
-  yaw -= dx * 0.006;
-  pitch += dy * 0.004;
-  updateCamera();
-});
-function stopDrag() { dragging = false; }
-mount.addEventListener('pointerup', stopDrag);
-mount.addEventListener('pointercancel', stopDrag);
-mount.addEventListener('wheel', event => {
-  event.preventDefault();
-  distance *= Math.exp(event.deltaY * 0.001);
-  updateCamera();
-}, { passive: false });
-window.addEventListener('keydown', event => {
-  const key = event.key.toLowerCase();
-  if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)) event.preventDefault();
-  keys.add(key);
-  if (key === 'r') resetCamera();
-});
-window.addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
-window.addEventListener('blur', () => keys.clear());
-window.addEventListener('resize', resize);
-document.querySelector('#reset').addEventListener('click', resetCamera);
-document.querySelector('#wall').addEventListener('click', () => {
-  wallVisible = !wallVisible;
-  wallMesh.visible = wallVisible;
-  setStatus(wallVisible ? 'Main 3D wall visible' : 'Main 3D wall hidden — toggle proves mesh control');
-});
-document.querySelector('#angle').addEventListener('click', () => {
-  yaw += Math.PI / 3;
-  updateCamera();
-});
-document.querySelector('#wire').addEventListener('click', () => {
-  wireframe = !wireframe;
-  wallMaterial.wireframe = wireframe;
-  setStatus(wireframe ? 'Wireframe mode — wall geometry visible' : 'Solid material mode');
-});
-</script>
-</body>
-</html>
+const mount=document.querySelector('#scene'),status=document.querySelector('#status'),err=document.querySelector('#err'),coords=document.querySelector('#coords');
+let renderer,scene,camera,player,collisionOn=true,viewAngle=0,lookYaw=0,lookPitch=.16,camDistance=5.3,dragging=false,lastX=0,lastY=0,lastTime=0;
+const keys=new Set(),heldButtons=new Set(),clock=new THREE.Clock();
+const walls=[],wallBoxes=[];const playerRadius=.27;const worldLimit=11;
+function statusText(t){status.textContent=t}
+function addWall(x,z,w,d,h=1.8,color='#b7c5d4') {const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.86}));mesh.position.set(x,h/2,z);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);walls.push(mesh);wallBoxes.push(new THREE.Box3().setFromObject(mesh));return mesh}
+function build(){scene=new THREE.Scene();scene.background=new THREE.Color('#a9c8dc');scene.fog=new THREE.Fog('#a9c8dc',22,48);camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;mount.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight('#eef8ff','#61734d',2.1));const sun=new THREE.DirectionalLight('#fff0d1',3);sun.position.set(-5,11,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:'#88a96f',roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;floor.receiveShadow=true;scene.add(floor);const grid=new THREE.GridHelper(30,30,'#59734d','#78966a');grid.position.y=.005;scene.add(grid);
+// A visible corridor with a turn and side obstacles for camera/character collision tests.
+addWall(0,-3,8,.45,1.8,'#dca653');addWall(-4,0,.45,6,1.8,'#dca653');addWall(4,0,.45,6,1.8,'#dca653');addWall(1.5,2,5,.45,1.8,'#c98d43');addWall(-2,4,.45,4,1.8,'#c98d43');addWall(2.5,5,3.5,.45,1.8,'#c98d43');addWall(-1.2,-.2,.7,.7,1.8,'#dca653');
+const body=new THREE.Mesh(new THREE.CapsuleGeometry(.27,.62,5,10),new THREE.MeshStandardMaterial({color:'#35b9c8',roughness:.5}));body.position.set(0,.72,5.7);body.castShadow=true;scene.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.24,16,12),new THREE.MeshStandardMaterial({color:'#f5ca8d',roughness:.6}));head.position.set(0,1.24,.12);body.add(head);const marker=new THREE.Mesh(new THREE.ConeGeometry(.13,.3,12),new THREE.MeshStandardMaterial({color:'#fff1a8',emissive:'#604b14',emissiveIntensity:.25}));marker.rotation.x=Math.PI/2;marker.position.set(0,.8,-.36);body.add(marker);player=body;updateCamera(true);statusText('3D scene ready · move the capsule to test follow camera');}
+function collides(x,z){if(!collisionOn)return false;const p=new THREE.Box3(new THREE.Vector3(x-playerRadius,0,z-playerRadius),new THREE.Vector3(x+playerRadius,1.5,z+playerRadius));return wallBoxes.some(b=>p.intersectsBox(b))}
+function updateCamera(snap=false){const yaw=lookYaw+viewAngle;const horizontal=Math.cos(lookPitch)*camDistance;const desired=new THREE.Vector3(player.position.x+Math.sin(yaw)*horizontal,player.position.y+1.25+Math.sin(lookPitch)*camDistance,player.position.z+Math.cos(yaw)*horizontal);if(snap)camera.position.copy(desired);else camera.position.lerp(desired,.16);camera.lookAt(player.position.x,player.position.y+.65,player.position.z);}
+function reset(){player.position.set(0,.72,5.7);player.rotation.y=0;lookYaw=0;lookPitch=.16;viewAngle=0;camDistance=5.3;keys.clear();heldButtons.clear();updateCamera(true);statusText('Reset complete')}
+function blockedMove(dx,dz){const nx=THREE.MathUtils.clamp(player.position.x+dx,-worldLimit,worldLimit),nz=THREE.MathUtils.clamp(player.position.z+dz,-worldLimit,worldLimit);if(!collides(nx,player.position.z))player.position.x=nx;if(!collides(player.position.x,nz))player.position.z=nz;}
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);const f=Number(keys.has('w')||keys.has('arrowup')||heldButtons.has('w'))-Number(keys.has('s')||keys.has('arrowdown')||heldButtons.has('s'));const r=Number(keys.has('d')||keys.has('arrowright')||heldButtons.has('d'))-Number(keys.has('a')||keys.has('arrowleft')||heldButtons.has('a'));if(f||r){const speed=3.2*dt;const yaw=lookYaw+viewAngle;const dx=(Math.sin(yaw)*f+Math.cos(yaw)*r)*speed;const dz=(Math.cos(yaw)*f-Math.sin(yaw)*r)*speed;blockedMove(dx,dz);if(Math.abs(dx)+Math.abs(dz)>.0001)player.rotation.y=Math.atan2(dx,dz);statusText(collisionOn?'Moving · wall collision enabled':'Moving · wall collision disabled');}updateCamera();renderer.render(scene,camera);coords.textContent=`Position: ${player.position.x.toFixed(1)}, ${player.position.z.toFixed(1)}`}
+try{build();animate()}catch(e){statusText('3D initialization failed');err.textContent=String(e?.stack||e);throw e}
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys.add(k)});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();heldButtons.clear()});
+document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;const start=e=>{e.preventDefault();heldButtons.add(k);b.setPointerCapture?.(e.pointerId)};const stop=e=>{e.preventDefault();heldButtons.delete(k)};b.addEventListener('pointerdown',start);b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',stop)});
+const look=document.querySelector('#look');look.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;look.setPointerCapture?.(e.pointerId)});look.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;lookYaw-=dx*.006;lookPitch=THREE.MathUtils.clamp(lookPitch+dy*.003,-.12,.55)});function stopLook(){dragging=false}look.addEventListener('pointerup',stopLook);look.addEventListener('pointercancel',stopLook);
+document.querySelector('#reset').addEventListener('click',reset);document.querySelector('#view').addEventListener('click',()=>{viewAngle+=Math.PI/2;statusText('Camera angle changed')});document.querySelector('#collision').addEventListener('click',e=>{collisionOn=!collisionOn;e.currentTarget.textContent=`Wall collision: ${collisionOn?'ON':'OFF'}`;statusText(collisionOn?'Wall collision enabled':'Wall collision disabled for comparison')});window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>

@@ -1,223 +1,240 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧩 迷你天氣主播 — 完成版</title>
-    <!-- 引入 Tailwind CSS (無代碼設計師的最佳選擇) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* 簡單的字體加大和圓角微調 */
-        body { font-size: 1.1rem; }
-        .elder-btn { font-size: 1.3rem !important; }
-        .setting-panel-elderly { font-size: 1.2rem !important; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maze 3D — Wall Proof</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0c1420; }
+  #scene { position: fixed; inset: 0; }
+  #scene canvas { display: block; width: 100%; height: 100%; }
+  .panel { position: fixed; z-index: 2; left: max(12px, env(safe-area-inset-left)); top: max(12px, env(safe-area-inset-top)); width: min(350px, calc(100vw - 24px)); padding: 15px; border: 1px solid #40536a; border-radius: 14px; background: rgba(9, 18, 31, .88); box-shadow: 0 12px 36px #0005; backdrop-filter: blur(8px); }
+  h1 { font-size: 18px; margin: 0 0 5px; }
+  p { margin: 5px 0 12px; color: #bdcce0; font-size: 13px; line-height: 1.45; }
+  .status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 8px 0 12px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #eab308; flex: 0 0 auto; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  button { min-height: 42px; border: 1px solid #58718d; border-radius: 9px; background: #1a2c42; color: #f2f7ff; font: inherit; font-size: 13px; padding: 8px 10px; cursor: pointer; }
+  button:active { background: #294766; }
+  .hint { font-size: 12px; color: #a9bad0; margin-top: 10px; }
+  #error { color: #fecaca; white-space: pre-wrap; }
+  @media (max-width: 480px) { .panel { padding: 12px; } h1 { font-size: 16px; } p { font-size: 12px; } button { min-height: 40px; } }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+  }
+}
+</script>
 </head>
-<!-- 預設背景圖設為 bg-sunny.PNG -->
-<body id="game-bg" class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center transition-all duration-700" style="background-image: url('bg-sunny.PNG');">
+<body>
+<div id="scene" aria-label="Interactive 3D wall test scene"></div>
+<section class="panel">
+  <h1>3D Wall Proof — Clean Restart</h1>
+  <p>This is a real WebGL 3D scene. The wall is a box mesh with front, side and top faces—not a perspective drawing on a 2D canvas.</p>
+  <div class="status"><span class="dot" id="dot"></span><span id="status">Loading Three.js…</span></div>
+  <div class="controls">
+    <button id="reset">Reset camera</button>
+    <button id="wall">Toggle wall</button>
+    <button id="angle">Change camera angle</button>
+    <button id="wire">Toggle wireframe</button>
+  </div>
+  <div class="hint">Drag to orbit · Scroll/pinch to zoom · WASD or arrow keys to move · R to reset</div>
+  <div class="hint" id="error" role="status"></div>
+</section>
+<script type="module">
+import * as THREE from 'three';
 
-    <!-- 遊戲大容器：響應式設計 (md:flex-row 手機變直向) -->
-    <div class="bg-white/40 backdrop-blur-sm p-6 md:p-8 rounded-[40px] shadow-2xl border border-white/40 max-w-7xl w-full flex flex-col md:flex-row gap-6 md:gap-10 items-center">
-        
-        <!-- 左邊：主播角色區域 (響應式大小) -->
-        <div class="w-full md:w-1/2 flex justify-center items-end h-[400px] md:h-[550px] relative">
-            <!-- 主播圖片，預設顯示 anchor-1.PNG (微笑) -->
-            <img id="anchor-img" src="anchor-1.PNG" alt="天氣主播" class="max-h-full object-contain transition-all duration-500 transform translate-y-0">
-        </div>
+const mount = document.querySelector('#scene');
+const statusEl = document.querySelector('#status');
+const dot = document.querySelector('#dot');
+const errorEl = document.querySelector('#error');
+let renderer, scene, camera, wallMesh, wallMaterial, grid, floor, axes;
+let wallVisible = true;
+let wireframe = false;
+let yaw = Math.PI * 0.22;
+let pitch = 0.34;
+let distance = 8.2;
+const target = new THREE.Vector3(0, 1.0, 0);
+const keys = new Set();
+let dragging = false;
+let lastX = 0, lastY = 0;
 
-        <!-- 右邊：控制面板與對話框 (響應式 flex column) -->
-        <div class="w-full md:w-1/2 flex flex-col justify-between gap-6">
-            
-            <!-- 上部分：標題與設定/骰仔區域 -->
-            <div>
-                <div class="flex justify-between items-center mb-6 gap-4">
-                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 drop-shadow-sm flex items-center gap-2">
-                        🧩 迷你天氣主播
-                    </h1>
-                    <div class="flex items-center gap-3">
-                        <!-- 設定按鈕 icon-settings.PNG -->
-                        <img id="settings-btn" src="icon-settings.PNG" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="設定">
-                        <!-- 音量按鈕 icon-volume.PNG -->
-                        <img id="volume-btn" src="icon-volume.PNG" class="w-12 h-12 md:w-14 md:h-14 bg-white/60 p-2 md:p-3 rounded-2xl shadow border border-white/60 cursor-pointer hover:bg-white/80 active:scale-95" alt="音量">
-                        <!-- 日曆 badge icon-calendar.PNG (Day Indicator) -->
-                        <div id="calendar-badge" class="w-12 h-12 md:w-14 md:h-14 bg-cover bg-center flex items-center justify-center" style="background-image: url('icon-calendar.PNG');">
-                            <span id="day-counter-text" class="text-xl md:text-2xl font-bold text-amber-900 mt-1">Day 1</span>
-                        </div>
-                    </div>
-                </div>
+function setStatus(text, ok = true) {
+  statusEl.textContent = text;
+  dot.style.background = ok ? '#22c55e' : '#ef4444';
+}
+function updateCamera() {
+  pitch = THREE.MathUtils.clamp(pitch, 0.08, 1.35);
+  distance = THREE.MathUtils.clamp(distance, 3.0, 18.0);
+  const horizontal = Math.cos(pitch) * distance;
+  camera.position.set(
+    target.x + Math.sin(yaw) * horizontal,
+    target.y + Math.sin(pitch) * distance,
+    target.z + Math.cos(yaw) * horizontal
+  );
+  camera.lookAt(target);
+}
+function resize() {
+  if (!renderer || !camera) return;
+  const w = Math.max(1, mount.clientWidth);
+  const h = Math.max(1, mount.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+function resetCamera() {
+  yaw = Math.PI * 0.22;
+  pitch = 0.34;
+  distance = 8.2;
+  target.set(0, 1, 0);
+  updateCamera();
+}
+function buildScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color('#a8c7dc');
+  scene.fog = new THREE.Fog('#a8c7dc', 18, 42);
 
-                <!-- 骰仔顯示區 (Mixed Mode：5 粒骰仔，骰子 1-6 號各一) -->
-                <p class="text-xs md:text-sm text-slate-600 font-bold mb-3 md:mb-4">🎲 擲骰仔結果 (Mixed Mode)：</p>
-                <div class="grid grid-cols-5 gap-3 mb-8 md:mb-10">
-                    <!-- 預設 5 粒骰仔模板為 dice-1.PNG -->
-                    <img id="dice-1" src="./dice-1.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 1">
-                    <img id="dice-2" src="./dice-2.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 2">
-                    <img id="dice-3" src="./dice-3.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 3">
-                    <img id="dice-4" src="./dice-4.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 4">
-                    <img id="dice-5" src="./dice-5.PNG" class="w-full aspect-square object-cover bg-white/80 rounded-[18px] border p-2 shadow-sm" alt="dice 5">
-                </div>
-            </div>
+  camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 100);
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  mount.appendChild(renderer.domElement);
 
-            <!-- 中部分：木製對話框 (用你準備嘅 textbox.PNG 做背景) -->
-            <div id="text-box-container" class="relative w-full h-48 md:h-56 p-6 md:p-8 bg-cover bg-center flex flex-col justify-center text-slate-700 select-none shadow-inner" style="background-image: url('textbox.PNG');">
-                <div class="absolute top-2 right-2 flex gap-2">
-                    <!-- 播放按鈕 icon-play.PNG -->
-                    <img id="play-btn" src="icon-play.PNG" class="w-10 h-10 md:w-12 md:h-12 bg-white/50 p-2 md:p-3 rounded-2xl shadow border border-white/50 cursor-pointer hover:bg-white/80 active:scale-95 hidden" alt="重播">
-                </div>
-                <p id="reporter-voice" class="text-sm md:text-base font-black text-amber-800 mb-1 md:mb-2 drop-shadow-sm">幸運與提示</p>
-                <p id="report-text" class="text-base md:text-xl font-bold leading-relaxed Big5-font">
-                    準備好未？撳骰仔開始報告！今日會有廣東話語音報告喔！
-                </p>
-            </div>
+  scene.add(new THREE.HemisphereLight('#eaf6ff', '#536b47', 2.0));
+  const sun = new THREE.DirectionalLight('#fff2d6', 3.0);
+  sun.position.set(-4, 9, 6);
+  scene.add(sun);
 
-            <!-- 下部分：操作按鈕 (長者加大字體) -->
-            <button id="roll-btn" class="w-full mt-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black py-5 px-6 rounded-[28px] shadow-lg shadow-amber-200 transition-all active:scale-95 text-xl md:text-2xl elder-btn">
-                🎲 擲骰仔生成天氣報告
-            </button>
-        </div>
+  const floorMaterial = new THREE.MeshStandardMaterial({ color: '#88a86b', roughness: 0.94 });
+  floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), floorMaterial);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.025;
+  floor.receiveShadow = true;
+  scene.add(floor);
 
-    </div>
+  grid = new THREE.GridHelper(30, 30, '#506a4a', '#78926b');
+  grid.position.y = 0.006;
+  scene.add(grid);
 
-    <!-- 設定面板 (隱藏，Elderly-Friendly) -->
-    <div id="settings-panel" class="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-6 setting-panel-elderly hidden">
-        <div class="bg-white p-8 md:p-10 rounded-[30px] shadow-2xl max-w-lg w-full text-center border-4 border-amber-600 flex flex-col gap-6">
-            <h2 class="text-3xl font-black text-slate-800 flex items-center justify-center gap-3">
-                <img src="icon-settings.PNG" class="w-10 h-10" alt="⚙️"> 遊戲設定
-            </h2>
-            <div class="flex flex-col gap-4 text-left">
-                <label class="text-xl font-bold text-slate-700">語音速度 (廣東話)</label>
-                <input id="voice-rate" type="range" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full h-6 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-amber-600">
-                <div class="flex justify-between text-base text-slate-500 font-bold"><span>慢一些</span><span>預設</span><span>快一些</span></div>
-            </div>
-            <button id="close-settings-btn" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-black py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95 text-xl elder-btn">
-                關閉設定
-            </button>
-        </div>
-    </div>
+  // The core proof: a genuine 3D box mesh with measurable width, height and depth.
+  wallMaterial = new THREE.MeshStandardMaterial({ color: '#e6a34c', roughness: 0.76, metalness: 0.0, wireframe: false });
+  wallMesh = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.2, 0.42), wallMaterial);
+  wallMesh.position.set(0, 1.1, 0);
+  wallMesh.castShadow = true;
+  wallMesh.receiveShadow = true;
+  scene.add(wallMesh);
 
-    <!-- 核心遊戲邏輯 (廣東話文字稿範例) -->
-    <script>
-        const rollBtn = document.getElementById('roll-btn');
-        const gameBg = document.getElementById('game-bg');
-        const anchorImg = document.getElementById('anchor-img');
-        const reporterVoice = document.getElementById('reporter-voice');
-        const reportText = document.getElementById('report-text');
-        const playBtn = document.getElementById('play-btn');
-        const settingsBtn = document.getElementById('settings-btn');
-        const closeSettingsBtn = document.getElementById('close-settings-btn');
-        const settingsPanel = document.getElementById('settings-panel');
-        const voiceRateInput = document.getElementById('voice-rate');
+  // Two perpendicular wall segments prove that corners are actual 3D geometry.
+  const sideWall = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2.2, 3.2), new THREE.MeshStandardMaterial({ color: '#d58c3b', roughness: 0.8 }));
+  sideWall.position.set(-1.9, 1.1, -1.72);
+  sideWall.castShadow = true;
+  sideWall.receiveShadow = true;
+  scene.add(sideWall);
 
-        // 儲存當前報告文字，供重播用
-        let currentReport = "";
+  const farWall = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.7, 0.38), new THREE.MeshStandardMaterial({ color: '#c97c36', roughness: 0.82 }));
+  farWall.position.set(0.5, 0.85, -4.0);
+  farWall.castShadow = true;
+  farWall.receiveShadow = true;
+  scene.add(farWall);
 
-        // 設定面板控制
-        settingsBtn.addEventListener('click', () => settingsPanel.classList.remove('hidden'));
-        closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.add('hidden'));
+  axes = new THREE.AxesHelper(1.4);
+  axes.position.set(-3.4, 0.02, 1.5);
+  scene.add(axes);
 
-        // 重播按鈕控制
-        playBtn.addEventListener('click', () => {
-            if (currentReport) {
-                speakHKCantonese(currentReport);
-            }
-        });
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.camera.left = -9;
+  sun.shadow.camera.right = 9;
+  sun.shadow.camera.top = 9;
+  sun.shadow.camera.bottom = -9;
+  sun.shadow.bias = -0.0003;
 
-        rollBtn.addEventListener('click', () => {
-            // 每次撳掣，重置骰仔 (用範例範本代表骰仔 1-6 號面)
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById(`dice-${i}`).src = 'dice-1.PNG'; // 預設 5 粒骰仔模板為 dice-1.PNG
-            }
+  resetCamera();
+  resize();
+  setStatus('3D scene created — wall mesh is present');
+}
 
-            // 隨機生成 5 日骰仔號碼 (1-6)
-            let randomDiceList = [];
-            for (let i = 0; i < 5; i++) {
-                randomDiceList.push(Math.floor(Math.random() * 6) + 1);
-            }
+function animate() {
+  requestAnimationFrame(animate);
+  if (!renderer || !scene || !camera) return;
+  const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+  const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+  const move = new THREE.Vector3();
+  if (keys.has('w') || keys.has('arrowup')) move.add(forward);
+  if (keys.has('s') || keys.has('arrowdown')) move.sub(forward);
+  if (keys.has('d') || keys.has('arrowright')) move.add(right);
+  if (keys.has('a') || keys.has('arrowleft')) move.sub(right);
+  if (move.lengthSq() > 0) {
+    move.normalize().multiplyScalar(0.075);
+    target.add(move);
+    updateCamera();
+  }
+  renderer.render(scene, camera);
+}
 
-            // 更新網頁上的 5 粒骰仔圖片 (對應骰子 1-6 號 png)
-            randomDiceList.forEach((dice_num, index) => {
-                document.getElementById(`dice-${index + 1}`).src = `dice-${dice_num}.PNG`;
-            });
+try {
+  buildScene();
+  animate();
+} catch (error) {
+  setStatus('3D initialization failed', false);
+  errorEl.textContent = String(error?.stack || error);
+  throw error;
+}
 
-            // 統計骰仔結果，決定天氣狀態
-            const counts = {};
-            randomDiceList.forEach((num) => { counts[num] = (counts[num] || 0) + 1; });
-
-            const positiveCount = (counts[1] || 0) + (counts[4] || 0) + (counts[6] || 0); // 1,4,6 面正能量
-            const negativeCount = (counts[3] || 0) + (counts[5] || 0); // 3,5 面負能量
-
-            let resultStatus = 'MIXED'; // 人生有起有落
-
-            if (negativeCount === 0 && positiveCount >= 3) {
-                resultStatus = 'DAIKICHI'; // 大吉
-            } else if (negativeCount >= 3) {
-                resultStatus = 'CHALLENGE'; // 挑戰
-            }
-
-            // 動態換圖邏輯：背景動畫 + 主播表情
-            if (resultStatus === 'DAIKICHI') {
-                gameBg.style.backgroundImage = "url('bg-rainbow.PNG')"; // 大吉換彩虹背景 (bg-rainbow.PNG)
-                anchorImg.src = "anchor-2.PNG"; // 主播興奮表情 (anchor-2.PNG)
-                speakHKCantoneseAndGenerateReport("【大吉】今日心情極佳，啱晒出街同朋友野餐！");
-            } else if (resultStatus === 'CHALLENGE') {
-                gameBg.style.backgroundImage = "url('bg-lightning.PNG')"; // 挑戰換雷電背景 (bg-lightning.PNG)
-                // 陰天或挑戰主播表情隨機 (anchor-3.PNG 至 4.PNG)
-                const challengeAnchorIndex = negativeCount >= 4 ? 4 : 3;
-                anchorImg.src = `anchor-${challengeAnchorIndex}.PNG`; 
-                speakHKCantoneseAndGenerateReport("【挑戰】雷電交加，出門要小心，留喺屋企聽下音樂啦！");
-            } else {
-                gameBg.style.backgroundImage = "url('bg-cloudy.PNG')"; // 混合換陰天背景 (bg-cloudy.PNG)
-                // 混合模式主播表情隨機 (anchor-1.PNG 至 6.PNG)
-                const mixedAnchorIndex = counts[6] >= 1 ? 2 : (positiveCount >= 2 ? 1 : 3);
-                anchorImg.src = `anchor-${mixedAnchorIndex}.PNG`;
-                speakHKCantoneseAndGenerateReport("【有起有落】天公有時不作美，但希望你心情都愉快！");
-            }
-        });
-
-        // 生成對白並廣東話朗讀 (廣東話文字稿及幸運提示)
-        function speakHKCantoneseAndGenerateReport(logicText) {
-            reporterVoice.textContent = `幸運：今日 ${logicText.split('【')[1].split('】')[0]}`;
-            currentReport = logicText;
-            reportText.textContent = logicText.split('】')[1];
-            playBtn.classList.remove('hidden'); // 顯示重播按鈕
-            speakHKCantonese(currentReport);
-        }
-
-        // 廣東話語音合成 (Web Speech API 預設設定，長者最佳)
-        function speakHKCantonese(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                
-                // 預設語言為香港廣東話 (zh-HK)
-                utterance.lang = 'zh-HK'; 
-                utterance.rate = voiceRateInput.value; // 從設定面板獲取語音速度
-                utterance.pitch = 1.0; 
-
-                // 嘗試尋找並使用標準廣東話語音源
-                let voices = window.speechSynthesis.getVoices();
-                let cantoneseVoice = voices.find(voice => voice.lang.includes('HK'));
-
-                if (cantoneseVoice) {
-                    utterance.voice = cantoneseVoice;
-                }
-
-                // 開始朗讀
-                window.speechSynthesis.cancel(); // 如果有舊報告，先停止
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // 確保在語音源加載後再尋找廣東話語音 (部份瀏覽器需要時間加載)
-        window.speechSynthesis.onvoiceschanged = function() {
-            // 這個 listener 是為了確保 speakHKCantonese 內能找到 zh-HK 語音源。
-            // 部份瀏覽器需要這一步才能正確初始化 getVoices()。
-        };
-
-        // 初始歡迎報告
-        window.onload = function() {
-            speakHKCantoneseAndGenerateReport("【預備】歡迎嚟到迷你天氣主播遊戲！撳擲骰仔生成天氣報告！");
-        };
-
-    </script>
+mount.addEventListener('pointerdown', event => {
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+  dragging = true; lastX = event.clientX; lastY = event.clientY;
+  mount.setPointerCapture?.(event.pointerId);
+});
+mount.addEventListener('pointermove', event => {
+  if (!dragging) return;
+  const dx = event.clientX - lastX;
+  const dy = event.clientY - lastY;
+  lastX = event.clientX; lastY = event.clientY;
+  yaw -= dx * 0.006;
+  pitch += dy * 0.004;
+  updateCamera();
+});
+function stopDrag() { dragging = false; }
+mount.addEventListener('pointerup', stopDrag);
+mount.addEventListener('pointercancel', stopDrag);
+mount.addEventListener('wheel', event => {
+  event.preventDefault();
+  distance *= Math.exp(event.deltaY * 0.001);
+  updateCamera();
+}, { passive: false });
+window.addEventListener('keydown', event => {
+  const key = event.key.toLowerCase();
+  if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)) event.preventDefault();
+  keys.add(key);
+  if (key === 'r') resetCamera();
+});
+window.addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
+window.addEventListener('blur', () => keys.clear());
+window.addEventListener('resize', resize);
+document.querySelector('#reset').addEventListener('click', resetCamera);
+document.querySelector('#wall').addEventListener('click', () => {
+  wallVisible = !wallVisible;
+  wallMesh.visible = wallVisible;
+  setStatus(wallVisible ? 'Main 3D wall visible' : 'Main 3D wall hidden — toggle proves mesh control');
+});
+document.querySelector('#angle').addEventListener('click', () => {
+  yaw += Math.PI / 3;
+  updateCamera();
+});
+document.querySelector('#wire').addEventListener('click', () => {
+  wireframe = !wireframe;
+  wallMaterial.wireframe = wireframe;
+  setStatus(wireframe ? 'Wireframe mode — wall geometry visible' : 'Solid material mode');
+});
+</script>
 </body>
 </html>
